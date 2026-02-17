@@ -2,7 +2,7 @@
 
 A high-performance `malloc` / `free` / `realloc` implementation in C, built from scratch as an extension of the Carnegie Mellon CSAPP Malloc Lab. Scores **98.6/100** on the performance index across 13 memory traces, achieving 93% average memory utilization and competitive throughput with the system `libc` allocator.
 
-**[Live Demo](https://cmcgartl.github.io/malloc-viz/)** — explore the heap visualizer and benchmark dashboard.
+**[Live Demo](https://cmcgartl.github.io/libConor-viz/)** — explore the heap visualizer and benchmark dashboard.
 
 ## Performance
 

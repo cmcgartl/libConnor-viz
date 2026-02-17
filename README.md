@@ -21,8 +21,10 @@ Throughput in this case is a metric that measures how many operations is complet
 
 | Metric | Score |
 |---|---|
-| Mean Utilization| 93% |
-| Mean Throughput | 30,618 kops/s |
+| Mean Util libConnor | 93% |
+| Mean Util libc | 99% |
+| Mean Tput libConnor | 30,618 kops/s |
+| Mean Tput libc | 30,618 kops/s |
 
 Tested across 13 workload traces that explore different allocation, free, and reallocation patterns. 
 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>libConnor — Benchmark Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>libConnor</h1>
+        <nav>
+            <a href="index.html">Overview</a>
+            <a href="visualizer.html">Heap Visualizer</a>
+            <a href="benchmark.html" class="active">Benchmark</a>
+        </nav>
+    </div>
+
+    <div id="loading" class="empty-state">
+        <div class="loading-spinner"></div>
+        <div>Loading benchmark data...</div>
+    </div>
+
+    <div id="error" class="empty-state" style="display:none;">
+        <div>Failed to load benchmark data</div>
+        <div class="hint">Try refreshing the page</div>
+    </div>
+
+    <div id="app" class="bench-grid" style="display:none;">
+        <div class="bench-card perf-index">
+            <h2 class="perf-index-header">Average Performance vs libc (across 13 traces)</h2>
+            <div class="perf-index-badges">
+                <div class="score-badge">
+                    <span class="score-num" id="perf-util">—</span>
+                    <span class="score-label">of libc memory utilization</span>
+                </div>
+                <div class="score-badge">
+                    <span class="score-num" id="perf-thru">—</span>
+                    <span class="score-label">of libc throughput</span>
+                </div>
+            </div>
+        </div>
+        <div class="bench-card">
+            <h2>Throughput (kops/s) — mm vs libc</h2>
+            <canvas id="chart-tput"></canvas>
+        </div>
+        <div class="bench-card">
+            <h2>Memory Utilization per Trace</h2>
+            <canvas id="chart-util"></canvas>
+        </div>
+    </div>
+
+    <script src="benchmark.js"></script>
+</body>
+</html>

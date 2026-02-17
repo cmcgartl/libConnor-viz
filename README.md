@@ -1,0 +1,125 @@
+# libConnor — Custom Memory Allocator
+
+A high-performance `malloc` / `free` / `realloc` implementation in C, built from scratch as an extension of the Carnegie Mellon CSAPP Malloc Lab. Scores **98.6/100** on the performance index across 13 memory traces, achieving 93% average memory utilization and competitive throughput with the system `libc` allocator.
+
+**[Live Demo](https://cmcgartl.github.io/malloc-viz/)** — explore the heap visualizer and benchmark dashboard.
+
+## Performance
+
+| Metric | Score |
+|---|---|
+| Overall Performance Index | **98.6 / 100** |
+| Utilization Score | 58.6 / 60 |
+| Throughput Score | 40.0 / 40 |
+| Mean Utilization | 93% |
+| Mean Throughput | 30,618 kops/s |
+
+Tested across 13 workload traces (parser outputs, random allocations, binary patterns, realloc-heavy sequences). Peak utilization reaches 99% on real-world compiler traces (`cccp`, `cp-decl`, `expr`).
+
+## Implementation
+
+### Segregated Free Lists
+
+Free blocks are organized into **13 size-class buckets**, each maintained as a doubly-linked explicit free list:
+
+```
+Bucket  0:       ≤ 64 bytes
+Bucket  1:    65 – 128 bytes
+Bucket  2:   129 – 512 bytes
+Bucket  3:   513 – 1,024 bytes
+Bucket  4: 1,025 – 4,096 bytes
+  ...
+Bucket 12:  > 512 KB
+```
+
+New free blocks are prepended to their bucket's list head (LIFO discipline). This segregated structure gives O(1) bucket selection and confines search to blocks of the appropriate size class.
+
+### Best-Fit Search
+
+`find_fit` scans the target bucket **back-to-front** (tail to head), tracking the smallest block that satisfies the request. If no fit exists in the target bucket, it moves to the next larger bucket. This yields near-optimal placement with minimal fragmentation.
+
+### Bidirectional Block Placement
+
+The allocator uses a size-dependent placement strategy when splitting free blocks:
+
+- **Small allocations (≤ 100 bytes):** placed at the **front** of the free block, with the remainder left at the back
+- **Large allocations (> 100 bytes):** placed at the **back** of the free block, with the remainder kept at the front
+
+This heuristic significantly improves utilization on workloads with mixed allocation sizes by keeping small and large blocks naturally separated, reducing fragmentation caused by alternating patterns.
+
+### Boundary Tag Coalescing
+
+Every block carries an 8-byte header and footer encoding its size and allocation status:
+
+```
++--------+-------------------+--------+
+| Header |     Payload       | Footer |
+| 8 bytes|   (user data)     | 8 bytes|
++--------+-------------------+--------+
+  size | alloc bit      size | alloc bit
+```
+
+On every `free()`, the allocator immediately checks both the previous and next adjacent blocks and merges any that are free (4-case coalescing). This prevents external fragmentation without deferred processing.
+
+### Optimized Realloc
+
+`realloc` avoids unnecessary copying through a 4-step strategy:
+
+1. **In-place resize** — if the current block is already large enough, shrink it and split off the remainder
+2. **Absorb neighbor** — if the next adjacent block is free and the combined size fits, expand in place
+3. **Relocate with fit** — find a free block via `find_fit`, use `memmove` to transfer data
+4. **Fallback** — `malloc` + `memcpy` + `free` as a last resort
+
+### Thread Safety
+
+All allocator entry points (`malloc`, `free`, `realloc`) are optionally protected by a recursive `pthread_mutex`. Compiled with `-DMM_THREADSAFE` and verified with an 8-thread stress test performing 80,000 concurrent allocations and frees.
+
+### Block Constraints
+
+- **Alignment:** 16 bytes
+- **Minimum block size:** 32 bytes (8-byte header + 8-byte prev pointer + 8-byte next pointer + 8-byte footer)
+- **Header size:** 8 bytes (`long`), with the allocation bit packed into the LSB
+
+## What's in This Repo
+
+This repository contains the **public-facing visualization and benchmark dashboard** only. It does not contain the allocator source code.
+
+| File | Description |
+|---|---|
+| `index.html` | Landing page with project overview |
+| `visualizer.html` | Interactive heap visualizer — step through allocation events |
+| `benchmark.html` | Performance dashboard comparing `mm` vs `libc` across all traces |
+| `viz.js` | Visualization engine (canvas rendering, event replay, controls) |
+| `benchmark.js` | Benchmark chart rendering |
+| `style.css` | Shared dark-theme styles |
+| `traces/*.json` | Pre-recorded heap event data for 5 representative traces |
+| `benchmark.json` | Full benchmark results across all 13 traces |
+
+### Heap Visualizer
+
+Step through up to 10,000 heap events and watch the allocator in action:
+- Blocks are color-coded: **green** (allocated), **red** (free), **orange** (current event)
+- Free list bucket distribution shown in real time
+- Metrics panel: heap size, utilization, fragmentation, block counts
+- Transport controls, keyboard navigation, and adjustable playback speed
+
+### Benchmark Dashboard
+
+- **Performance Index** — weighted composite score (60% utilization, 40% throughput)
+- **Throughput chart** — side-by-side comparison of `mm` vs `libc` in kops/s per trace
+- **Utilization chart** — per-trace memory utilization with a 95% target line
+
+## Source Code
+
+The full allocator implementation (C source, build system, tests, tracing infrastructure) is maintained in a **private repository**. If you'd like to review the code, please reach out:
+
+- **GitHub:** [@cmcgartl](https://github.com/cmcgartl)
+- **Email:** cmcgartl@gmail.com
+
+## Tech Stack
+
+- **C17** — allocator implementation
+- **POSIX Threads** — thread-safe locking
+- **Canvas API / Vanilla JS** — visualization
+- **GNU Make** — build system
+- **Unity** — C unit testing framework

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>libConnor — Heap Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>libConnor</h1>
+        <nav>
+            <a href="index.html">Overview</a>
+            <a href="visualizer.html" class="active">Heap Visualizer</a>
+            <a href="benchmark.html">Benchmark</a>
+        </nav>
+        <div class="trace-selector">
+            <label for="trace-select">Trace:</label>
+            <select id="trace-select">
+                <option value="amptjp" selected>amptjp — mixed workload</option>
+                <option value="coalescing">coalescing — alloc/free pairs</option>
+                <option value="random">random — large random sizes</option>
+                <option value="binary">binary — alternating sizes</option>
+                <option value="realloc">realloc — growing buffers</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-state">
+        <div class="spinner"></div>
+        <div>Loading heap trace data...</div>
+    </div>
+
+    <div id="app" class="container" style="display:none;">
+        <div class="sidebar">
+            <div class="panel">
+                <h3>Metrics</h3>
+                <div class="metric"><span>Heap Size</span><span class="value" id="m-heap">—</span></div>
+                <div class="metric"><span>Allocated</span><span class="value" id="m-alloc">—</span></div>
+                <div class="metric"><span>Free</span><span class="value" id="m-free">—</span></div>
+                <div class="metric"><span>Utilization</span><span class="value" id="m-util">—</span></div>
+                <div class="metric"><span>Fragmentation</span><span class="value" id="m-frag">—</span></div>
+                <div class="metric"><span>Largest Free</span><span class="value" id="m-largest">—</span></div>
+                <div class="metric"><span>Free Blocks</span><span class="value" id="m-freeblk">—</span></div>
+                <div class="metric"><span>Alloc Blocks</span><span class="value" id="m-allocblk">—</span></div>
+            </div>
+            <div class="panel">
+                <h3>Free List Buckets</h3>
+                <div id="buckets"></div>
+            </div>
+            <div class="panel">
+                <h3>Current Event</h3>
+                <div class="metric"><span>Type</span><span class="value" id="e-type">—</span></div>
+                <div class="metric"><span>Offset</span><span class="value" id="e-offset">—</span></div>
+                <div class="metric"><span>Block Size</span><span class="value" id="e-size">—</span></div>
+                <div class="metric"><span>Request</span><span class="value" id="e-req">—</span></div>
+                <div class="metric"><span>Source Op</span><span class="value" id="e-source">—</span></div>
+            </div>
+            <div class="panel">
+                <h3>Input Trace <span class="trace-ops-count" id="trace-ops-count"></span></h3>
+                <div class="trace-ops-list" id="trace-ops-list"></div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="canvas-wrap">
+                <canvas id="heap"></canvas>
+            </div>
+            <div class="controls">
+                <button id="btn-start" title="Go to start">⏮</button>
+                <button id="btn-prev" title="Step back">◀</button>
+                <button id="btn-play" title="Play/Pause">▶</button>
+                <button id="btn-next" title="Step forward">▶▶</button>
+                <button id="btn-end" title="Go to end">⏭</button>
+                <label style="color:#8b949e;font-size:12px;">Speed</label>
+                <input type="range" id="speed" min="1" max="100" value="20">
+                <span class="event-counter" id="counter">0 / 0</span>
+                <button id="btn-guide" class="help-btn" title="What am I looking at?">What am I looking at?</button>
+                <button id="btn-controls" class="help-btn" title="Keyboard shortcuts">Controls</button>
+            </div>
+
+            <div class="help-popover" id="popover-guide" style="display:none;">
+                <div class="help-popover-header">
+                    <span>Visual Guide</span>
+                    <button class="help-popover-close" data-close="popover-guide">&times;</button>
+                </div>
+                <div class="help-popover-body">
+                    <div class="help-section">
+                        <h4>Heap Blocks</h4>
+                        <div class="help-row"><span class="help-swatch" style="background:#238636;"></span> Allocated block (in use by program)</div>
+                        <div class="help-row"><span class="help-swatch" style="background:#da3633;"></span> Free block (returned to allocator)</div>
+                        <div class="help-row"><span class="help-swatch" style="background:transparent;border:2px solid #f0883e;"></span> Current event's block (orange border)</div>
+                        <div class="help-row-note">Block width is proportional to byte size. Labels show the block's total size including header/footer metadata.</div>
+                    </div>
+                    <div class="help-section">
+                        <h4>Timeline Events</h4>
+                        <div class="help-row"><span class="help-dot" style="background:#238636;"></span> malloc &mdash; new allocation</div>
+                        <div class="help-row"><span class="help-dot" style="background:#da3633;"></span> free &mdash; block returned</div>
+                        <div class="help-row"><span class="help-dot" style="background:#388bfd;"></span> realloc &mdash; resize existing allocation</div>
+                        <div class="help-row"><span class="help-dot" style="background:#d29922;"></span> coalesce &mdash; adjacent free blocks merged</div>
+                        <div class="help-row"><span class="help-dot" style="background:#a371f7;"></span> split &mdash; block divided after allocation</div>
+                        <div class="help-row"><span class="help-dot" style="background:#8b949e;"></span> extend_heap &mdash; heap grows via sbrk</div>
+                    </div>
+                    <div class="help-section">
+                        <h4>Sidebar Metrics</h4>
+                        <div class="help-row-note"><b>Utilization</b> &mdash; % of heap bytes actively allocated. Higher is better.</div>
+                        <div class="help-row-note"><b>Fragmentation</b> &mdash; 1 &minus; (largest free block / total free bytes). 0% = one contiguous free region. High values indicate scattered small free blocks.</div>
+                        <div class="help-row-note"><b>Free List Buckets</b> &mdash; count of free blocks in each of the 13 size-class buckets used by the segregated free list.</div>
+                    </div>
+                    <div class="help-section">
+                        <h4>Input Trace</h4>
+                        <div class="help-row-note">Shows the original memory requests from the trace file. Each operation can trigger multiple internal heap events (e.g., a single <code>alloc</code> may cause extend_heap + split + malloc). Click any operation to jump to its first heap event.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-popover" id="popover-controls" style="display:none;">
+                <div class="help-popover-header">
+                    <span>Controls</span>
+                    <button class="help-popover-close" data-close="popover-controls">&times;</button>
+                </div>
+                <div class="help-popover-body">
+                    <div class="help-section">
+                        <h4>Playback</h4>
+                        <div class="help-shortcut"><kbd>Space</kbd> Play / Pause</div>
+                        <div class="help-shortcut"><kbd>&larr;</kbd> Step back one event</div>
+                        <div class="help-shortcut"><kbd>&rarr;</kbd> Step forward one event</div>
+                        <div class="help-shortcut"><kbd>Home</kbd> Jump to first event</div>
+                        <div class="help-shortcut"><kbd>End</kbd> Jump to last event</div>
+                    </div>
+                    <div class="help-section">
+                        <h4>Mouse</h4>
+                        <div class="help-shortcut">Hover a block to see its offset, size, and status</div>
+                        <div class="help-shortcut">Click the timeline bar to jump to any point</div>
+                        <div class="help-shortcut">Click a trace operation in the sidebar to jump to its first heap event</div>
+                    </div>
+                    <div class="help-section">
+                        <h4>Speed Slider</h4>
+                        <div class="help-shortcut">Controls how many events advance per animation frame during playback. Drag right for faster.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="timeline">
+                <canvas id="timeline"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="viz.js"></script>
+</body>
+</html>

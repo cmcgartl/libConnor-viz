@@ -1,0 +1,49 @@
+{
+  "libc": {
+    "traces": [
+      {"name": "./traces/amptjp-bal.rep", "valid": true, "util": 0.0000, "ops": 5694, "ms": 0.22, "kops_s": 25683},
+      {"name": "./traces/cccp-bal.rep", "valid": true, "util": 0.0000, "ops": 5848, "ms": 0.19, "kops_s": 30098},
+      {"name": "./traces/cp-decl-bal.rep", "valid": true, "util": 0.0000, "ops": 6648, "ms": 0.20, "kops_s": 32976},
+      {"name": "./traces/expr-bal.rep", "valid": true, "util": 0.0000, "ops": 5380, "ms": 0.15, "kops_s": 35771},
+      {"name": "./traces/coalescing-bal.rep", "valid": true, "util": 0.0000, "ops": 14400, "ms": 0.26, "kops_s": 54711},
+      {"name": "./traces/random-bal.rep", "valid": true, "util": 0.0000, "ops": 4800, "ms": 0.58, "kops_s": 8225},
+      {"name": "./traces/random2-bal.rep", "valid": true, "util": 0.0000, "ops": 4800, "ms": 0.60, "kops_s": 8000},
+      {"name": "./traces/binary-bal.rep", "valid": true, "util": 0.0000, "ops": 12000, "ms": 0.38, "kops_s": 31637},
+      {"name": "./traces/binary2-bal.rep", "valid": true, "util": 0.0000, "ops": 24000, "ms": 0.59, "kops_s": 40699},
+      {"name": "./traces/binary3-bal.rep", "valid": true, "util": 0.0000, "ops": 12000, "ms": 0.63, "kops_s": 18993},
+      {"name": "./traces/binary4-bal.rep", "valid": true, "util": 0.0000, "ops": 12000, "ms": 0.60, "kops_s": 20010},
+      {"name": "./traces/realloc-bal.rep", "valid": true, "util": 0.0000, "ops": 14401, "ms": 0.18, "kops_s": 80228},
+      {"name": "./traces/realloc2-bal.rep", "valid": true, "util": 0.0000, "ops": 14401, "ms": 0.17, "kops_s": 85669}
+    ],
+    "mean_util": 0.0000,
+    "total_ops": 136372,
+    "total_ms": 4.76,
+    "mean_tput": 28632
+  },
+  "mm": {
+    "traces": [
+      {"name": "./traces/amptjp-bal.rep", "valid": true, "util": 0.9857, "ops": 5694, "ms": 0.20, "kops_s": 28685},
+      {"name": "./traces/cccp-bal.rep", "valid": true, "util": 0.9898, "ops": 5848, "ms": 0.20, "kops_s": 28639},
+      {"name": "./traces/cp-decl-bal.rep", "valid": true, "util": 0.9900, "ops": 6648, "ms": 0.24, "kops_s": 27828},
+      {"name": "./traces/expr-bal.rep", "valid": true, "util": 0.9919, "ops": 5380, "ms": 0.18, "kops_s": 29431},
+      {"name": "./traces/coalescing-bal.rep", "valid": true, "util": 0.9787, "ops": 14400, "ms": 0.38, "kops_s": 37480},
+      {"name": "./traces/random-bal.rep", "valid": true, "util": 0.9576, "ops": 4800, "ms": 0.33, "kops_s": 14701},
+      {"name": "./traces/random2-bal.rep", "valid": true, "util": 0.9553, "ops": 4800, "ms": 0.33, "kops_s": 14701},
+      {"name": "./traces/binary-bal.rep", "valid": true, "util": 0.9130, "ops": 12000, "ms": 0.36, "kops_s": 33473},
+      {"name": "./traces/binary2-bal.rep", "valid": true, "util": 0.8127, "ops": 24000, "ms": 0.71, "kops_s": 33770},
+      {"name": "./traces/binary3-bal.rep", "valid": true, "util": 0.8508, "ops": 12000, "ms": 0.36, "kops_s": 33463},
+      {"name": "./traces/binary4-bal.rep", "valid": true, "util": 0.8898, "ops": 12000, "ms": 0.36, "kops_s": 33306},
+      {"name": "./traces/realloc-bal.rep", "valid": true, "util": 0.8860, "ops": 14401, "ms": 0.40, "kops_s": 35673},
+      {"name": "./traces/realloc2-bal.rep", "valid": true, "util": 0.8544, "ops": 14401, "ms": 0.40, "kops_s": 35949}
+    ],
+    "mean_util": 0.9274,
+    "total_ops": 136372,
+    "total_ms": 4.45,
+    "mean_tput": 30618
+  }
+  ,"performance_index": {
+    "util_score": 58.6,
+    "thru_score": 40.0,
+    "total": 98.6
+  }
+}

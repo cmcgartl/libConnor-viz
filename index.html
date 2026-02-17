@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>libConnor — Custom Memory Allocator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>libConnor</h1>
+        <nav>
+            <a href="index.html" class="active">Overview</a>
+            <a href="visualizer.html">Heap Visualizer</a>
+            <a href="benchmark.html">Benchmark</a>
+        </nav>
+        <a class="gh-link" href="https://github.com/cmcgartl/malloc-viz" target="_blank">View Source</a>
+    </div>
+
+    <div class="landing">
+        <div class="hero">
+            <div class="hero-text">
+                <h2>A High-Performance Memory Allocator</h2>
+                <p class="subtitle">
+                    Custom <code>malloc</code> / <code>free</code> / <code>realloc</code> implementation
+                    in C, using segregated free lists, immediate coalescing, and bidirectional allocation, with optional thread safety and benchmarked against libc.
+                </p>
+                <div class="score-badge">
+                    <span class="score-num">99%</span>
+                    <span class="score-label">of libc throughput</span>
+                </div>
+                <div class="score-badge">
+                    <span class="score-num">93%</span>
+                    <span class="score-label">of libc utilization</span>
+                </div>
+                <div class="cta-row">
+                    <a href="visualizer.html" class="cta-btn primary">Heap Visualizer</a>
+                    <a href="benchmark.html" class="cta-btn secondary">Benchmark Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <h3>Segregated Free Lists</h3>
+                <p>13 size-class buckets with best-fit search for optimal memory utilization. Large allocations are split from the back to reduce fragmentation.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Immediate Coalescing</h3>
+                <p>Adjacent free blocks are merged on every <code>free()</code> call using boundary tags (header/footer), preventing external fragmentation.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Thread Safety</h3>
+                <p>Optional recursive mutex locking around all allocator entry points. Verified with an 8-thread stress test doing 80K concurrent operations.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Benchmarked Against libc</h3>
+                <p>Tested across 13 real-world memory traces. Achieves 93% average utilization and up to 1.6x libc throughput on allocation-heavy workloads.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Heap Visualizer</h3>
+                <p>Step through 10,000 heap events and watch blocks get allocated, freed, and coalesced in real time. See fragmentation patterns as they develop.</p>
+            </div>
+            <div class="feature-card">
+                <h3>64-bit Native</h3>
+                <p>16-byte aligned allocations on 64-bit architectures. Minimum 32-byte blocks with 8-byte headers and footers for boundary tag metadata.</p>
+            </div>
+        </div>
+
+        <div class="arch-section">
+            <h2>Architecture</h2>
+            <div class="arch-grid">
+                <div class="arch-item">
+                    <h4>Block Layout</h4>
+                    <pre class="arch-diagram">+--------+-------------------+--------+
+| Header |     Payload       | Footer |
+| 8 bytes|   (user data)     | 8 bytes|
++--------+-------------------+--------+
+  size | alloc bit      size | alloc bit</pre>
+                </div>
+                <div class="arch-item">
+                    <h4>Size Classes (13 Buckets)</h4>
+                    <pre class="arch-diagram">Bucket  0:     0 -    64 bytes
+Bucket  1:    65 -   128 bytes
+Bucket  2:   129 -   512 bytes
+Bucket  3:   513 - 1,024 bytes
+Bucket  4: 1,025 - 4,096 bytes
+    ...        ...
+Bucket 12:  512K+</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-section">
+            <h2>Tech Stack</h2>
+            <div class="tech-tags">
+                <span class="tag">C17</span>
+                <span class="tag">POSIX Threads</span>
+                <span class="tag">Canvas API</span>
+                <span class="tag">Vanilla JS</span>
+                <span class="tag">Make</span>
+                <span class="tag">Unity Test Framework</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,20 +1,30 @@
 # libConnor — Custom Memory Allocator
 
-A high-performance `malloc` / `free` / `realloc` implementation in C, built from scratch as an extension of the Carnegie Mellon CSAPP Malloc Lab. Scores **98.6/100** on the performance index across 13 memory traces, achieving 93% average memory utilization and competitive throughput with the system `libc` allocator.
+A visualizer for a high-performance `malloc` / `free` / `realloc` implementation in C using segregated free lists, find best fit, immediate coalescing, and bidirectional allocation. Achieves **93%** memory utilization and **98%** throughput when benchmarked against libc's malloc across 13 memory traces
 
 **[Live Demo](https://cmcgartl.github.io/libConor-viz/)** — explore the heap visualizer and benchmark dashboard.
 
 ## Performance
 
+The performance was benchmarked against libc's malloc under two performance categories: memory utilization and throughput in kops/s
+
+### Memory Utilization: 
+
+Memory Utilization is a metric that helps to measure heap fragmentation. it is calcuated as: **#allocated bytes / current heap size**. Why is this an important metric?
+
+low memory utilization means the heap has large amounts of memory that are not being used to store data for a program. It is typically a result of **heap fragmentation**, which occurs when there is a large amount of free memory on the heap that is comprised of many small fragments of memory that are too small to be used for any one allocation. This causes wasted memory and even efficiency costs as it harms cache performance in the form of reduced spatial locality due to cache lines containing unused memory.
+
+### Throughput:
+
+Throughput in this case is a metric that measures how many operations is completed by the program per unit of time. In this case, throughput was measured in kilo-operations per second for each memory trace. Throughput effectively measures how quickly a malloc implementation can handle calls to malloc, free, and realloc in different situations and under different loads.
+
+
 | Metric | Score |
 |---|---|
-| Overall Performance Index | **98.6 / 100** |
-| Utilization Score | 58.6 / 60 |
-| Throughput Score | 40.0 / 40 |
-| Mean Utilization | 93% |
+| Mean Utilization| 93% |
 | Mean Throughput | 30,618 kops/s |
 
-Tested across 13 workload traces (parser outputs, random allocations, binary patterns, realloc-heavy sequences). Peak utilization reaches 99% on real-world compiler traces (`cccp`, `cp-decl`, `expr`).
+Tested across 13 workload traces that explore different allocation, free, and reallocation patterns. 
 
 ## Implementation
 

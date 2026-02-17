@@ -2,7 +2,7 @@
 
 A visualizer for a high-performance `malloc` / `free` / `realloc` implementation in C using segregated free lists, find best fit, immediate coalescing, and bidirectional allocation. Achieves **93%** memory utilization and **98%** throughput when benchmarked against libc's malloc across 13 memory traces
 
-**[Live Demo](https://cmcgartl.github.io/libConor-viz/)** — explore the heap visualizer and benchmark dashboard.
+**[Live Demo](https://cmcgartl.github.io/libConnor-viz/)** — explore the heap visualizer and benchmark dashboard.
 
 ## Performance
 

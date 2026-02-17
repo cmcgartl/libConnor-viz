@@ -18,15 +18,18 @@ low memory utilization means the heap has large amounts of memory that are not b
 
 Throughput in this case is a metric that measures how many operations is completed by the program per unit of time. In this case, throughput was measured in kilo-operations per second for each memory trace. Throughput effectively measures how quickly a malloc implementation can handle calls to malloc, free, and realloc in different situations and under different loads.
 
+The Throughput was first measured by simply comparing the kops/s of libConnor vs libc for each trace. However, this was a result of the overhead of libc's added thread safety causing my naive implementation to dominate, providing an extremely misleading comparison. To fix this, I updated my implementation to also be thread safe, achieveing a much lower and realistic throughput for comparison. 
 
+
+### Benchmark results of libConor vs libc
 | Metric | Score |
 |---|---|
-| Mean Util libConnor | 93% |
-| Mean Util libc | 99% |
-| Mean Tput libConnor | 30,618 kops/s |
-| Mean Tput libc | 30,618 kops/s |
+| Mean Util | 93% |
+| Mean Tput | 98% |
 
-Tested across 13 workload traces that explore different allocation, free, and reallocation patterns. 
+The table shows the average results tested across 13 workload traces that explore different allocation, free, and reallocation patterns. In some cases, libConnor outperformed libc, and in other cases libc outperformed libConnor. Results per trace are available on the benchmark dashboard in the visualizer
+
+The cases in which libConnor outperformed libC is mostly a result of optimizing  for specific, and simple traces. Furthermore, optimization follows a path of diminishing returns. Optimizing from 50%, to 90% memory utilization and throughput as compared to libc is significantly easier than optimizing the last few percentage points to match or surpass libc.
 
 ## Implementation
 
